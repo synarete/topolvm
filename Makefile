@@ -28,6 +28,14 @@ BUILD_TARGET=hypertopolvm
 TOPOLVM_VERSION ?= devel
 IMAGE_TAG ?= latest
 
+PROTOC_ARCH := $(GOARCH)
+ifeq ($(GOARCH),amd64)
+PROTOC_ARCH := x86_64
+endif
+ifeq ($(GOARCH),arm64)
+PROTOC_ARCH := aarch_64
+endif
+
 ENVTEST_KUBERNETES_VERSION=1.24
 
 PROTOC_GEN_GO_VERSION := $(shell awk '/google.golang.org\/protobuf/ {print substr($$2, 2)}' go.mod)
@@ -175,7 +183,7 @@ tools: install-kind ## Install development tools.
 	GOBIN=$(BINDIR) go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
 	GOBIN=$(BINDIR) go install sigs.k8s.io/controller-tools/cmd/controller-gen@v$(CONTROLLER_TOOLS_VERSION)
 
-	$(CURL) -o protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v$(PROTOC_VERSION)/protoc-$(PROTOC_VERSION)-linux-x86_64.zip
+	$(CURL) -o protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v$(PROTOC_VERSION)/protoc-$(PROTOC_VERSION)-linux-$(PROTOC_ARCH).zip
 	unzip -o protoc.zip bin/protoc 'include/*'
 	rm -f protoc.zip
 	GOBIN=$(BINDIR) go install google.golang.org/protobuf/cmd/protoc-gen-go@v$(PROTOC_GEN_GO_VERSION)
@@ -185,8 +193,8 @@ tools: install-kind ## Install development tools.
 	GOBIN=$(BINDIR) go install github.com/onsi/ginkgo/ginkgo@v$(GINKGO_VERSION)
 
 	GOBIN=$(BINDIR) go install github.com/norwoodj/helm-docs/cmd/helm-docs@v$(HELM_DOCS_VERSION)
-	$(CURL) https://get.helm.sh/helm-v$(HELM_VERSION)-linux-amd64.tar.gz \
-		| tar xvz -C $(BINDIR) --strip-components 1 linux-amd64/helm
+	$(CURL) https://get.helm.sh/helm-v$(HELM_VERSION)-linux-$(GOARCH).tar.gz \
+		| tar xvz -C $(BINDIR) --strip-components 1 linux-$(GOARCH)/helm
 
 .PHONY: setup
 setup: ## Setup local environment.

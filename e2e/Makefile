@@ -17,6 +17,7 @@ KIND := ../bin/kind
 KUBECTL := $(BINDIR)/kubectl
 HELM := ../bin/helm
 GINKGO := ../bin/ginkgo
+ARCH := $(shell go env GOARCH)
 
 MINIKUBE_HOME = $(BINDIR)
 export MINIKUBE_HOME
@@ -187,9 +188,9 @@ clean: stop-lvmd
 setup:
 	cd ..; $(MAKE) setup
 	mkdir -p $(BINDIR)
-	$(CURL) -o $(BINDIR)/kubectl https://storage.googleapis.com/kubernetes-release/release/v$(KUBERNETES_VERSION)/bin/linux/amd64/kubectl
+	$(CURL) -o $(BINDIR)/kubectl https://storage.googleapis.com/kubernetes-release/release/v$(KUBERNETES_VERSION)/bin/linux/$(ARCH)/kubectl
 	chmod a+x $(BINDIR)/kubectl
-	$(CURL) https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F$(KUSTOMIZE_VERSION)/kustomize_$(KUSTOMIZE_VERSION)_linux_amd64.tar.gz | tar zxf - -C $(BINDIR)
+	$(CURL) https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F$(KUSTOMIZE_VERSION)/kustomize_$(KUSTOMIZE_VERSION)_linux_$(ARCH).tar.gz | tar zxf - -C $(BINDIR)
 
 .PHONY: daemonset-lvmd/create-vg
 daemonset-lvmd/create-vg:
@@ -239,7 +240,7 @@ daemonset-lvmd/setup-minikube:
 	mkdir -p $(BINDIR)
 	$(SUDO) apt-get update
 	DEBIAN_FRONTEND=noninteractive $(SUDO) apt-get install -y --no-install-recommends conntrack
-	$(CURL) -o $(BINDIR)/minikube https://github.com/kubernetes/minikube/releases/download/$(MINIKUBE_VERSION)/minikube-linux-amd64
+	$(CURL) -o $(BINDIR)/minikube https://github.com/kubernetes/minikube/releases/download/$(MINIKUBE_VERSION)/minikube-linux-$(ARCH)
 	chmod a+x $(BINDIR)/minikube
 
 .PHONY: daemonset-lvmd/launch-minikube

@@ -12,6 +12,7 @@ TMPDIR := /tmp/topolvm
 HELM := $(BINDIR)/helm
 KUBECTL := $(BINDIR)/kubectl
 KIND := ../bin/kind
+ARCH := $(shell go env GOARCH)
 
 GO_FILES := $(shell find .. -prune -o -path ../e2e -prune -o -name '*.go' -print)
 BACKING_STORE := ./build
@@ -20,7 +21,7 @@ BUILD_IMAGE := false
 
 $(KUBECTL):
 	mkdir -p $(BINDIR)
-	$(CURL) https://storage.googleapis.com/kubernetes-release/release/v$(KUBERNETES_VERSION)/bin/linux/amd64/kubectl -o $(KUBECTL)
+	$(CURL) https://storage.googleapis.com/kubernetes-release/release/v$(KUBERNETES_VERSION)/bin/linux/$(ARCH)/kubectl -o $(KUBECTL)
 	chmod 755 $(KUBECTL)
 
 build/topolvm.img: $(GO_FILES)
@@ -54,8 +55,8 @@ setup: $(KUBECTL)
 	cd ..; $(MAKE) install-kind
 	mkdir -p $(BINDIR)
 	mkdir -p build
-	$(CURL) https://get.helm.sh/helm-v$(HELM_VERSION)-linux-amd64.tar.gz \
-	  | tar xvz -C $(BINDIR) --strip-components 1 linux-amd64/helm
+	$(CURL) https://get.helm.sh/helm-v$(HELM_VERSION)-linux-$(ARCH).tar.gz \
+	  | tar xvz -C $(BINDIR) --strip-components 1 linux-$(ARCH)/helm
 
 clean: stop-lvmd
 	rm -rf bin/ build/
